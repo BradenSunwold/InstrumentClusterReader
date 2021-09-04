@@ -1,0 +1,46 @@
+#STMCubeIDE project files
+*.project
+*.mxproject
+*.cproject
+*.settings
+
+#STM specific
+Common/
+Drivers/
+Middlewares/
+A7/
+
+CM4/Debug/
+CM4/Drivers/
+CM4/Middlewares/
+CM4/OPENAMP/
+CM4/RemoteProc/
+
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
