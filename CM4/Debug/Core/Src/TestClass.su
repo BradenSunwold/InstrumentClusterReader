@@ -1,0 +1,3 @@
+TestClass.cpp:10:1:TestClass::TestClass()	16	static
+TestClass.cpp:15:1:TestClass::~TestClass()	16	static
+TestClass.cpp:15:1:virtual TestClass::~TestClass()	16	static

@@ -1,0 +1,10 @@
+InstrumentCommandMessage.cpp:4:1:InstrumentCommandMessage::InstrumentCommandMessage()	16	static
+InstrumentCommandMessage.cpp:11:1:InstrumentCommandMessage::InstrumentCommandMessage(float, int, int)	24	static
+InstrumentCommandMessage.cpp:18:6:void InstrumentCommandMessage::Serialize(char*, endian_t)	24	static
+InstrumentCommandMessage.cpp:25:6:void InstrumentCommandMessage::LoadMessageData(float, int, int)	24	static
+InstrumentCommandMessage.cpp:32:6:void InstrumentCommandMessage::setWspd(float)	16	static
+InstrumentCommandMessage.cpp:37:6:void InstrumentCommandMessage::setTrip(int)	16	static
+InstrumentCommandMessage.cpp:42:6:void InstrumentCommandMessage::setOdom(int)	16	static
+InstrumentCommandMessage.cpp:47:7:float InstrumentCommandMessage::getWspd()	16	static
+InstrumentCommandMessage.cpp:52:5:int InstrumentCommandMessage::getTrip()	16	static
+InstrumentCommandMessage.cpp:57:5:int InstrumentCommandMessage::getOdom()	16	static
