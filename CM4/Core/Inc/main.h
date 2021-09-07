@@ -33,6 +33,9 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#include <EventLoop.hpp>
+#include <CtoCppInterface.hpp>
+
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -54,6 +57,10 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
+
+uint32_t ReadSwTimer();
+uint32_t ReadHwTimer();
+void TransmitErrors(char* dest);
 
 /* USER CODE END EFP */
 

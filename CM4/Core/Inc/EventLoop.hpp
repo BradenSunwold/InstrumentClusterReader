@@ -1,11 +1,29 @@
 
-#ifndef INC_EVENTLOOP_HPP_
-#define INC_EVENTLOOP_HPP_
+#ifndef EVENTLOOP_HPP_
+#define EVENTLOOP_HPP_
 
+#include <stdint.h>
+#include <stdio.h>
+#include <main.h>
 #include "InstrumentCommandMessage.h"
-#include "../Src/TestClass.h"
 
-void eventLoop();
+typedef uint32_t (*ReadExternalTimer32Bit_t)();
+
+void EventLoopCpp();
+
+// System timer test functions
+void TestSystemTimer();
+
+#ifdef __cplusplus
+extern "C"
+{
+	void InitInterface(ReadExternalTimer32Bit_t readHwTimer, ReadExternalTimer32Bit_t readSwTimer,
+							unsigned long clockFreq);
+}
+#else
+	void InitInterface(ReadExternalTimer32Bit_t readHwTimer, ReadExternalTimer32Bit_t readSwTimer,
+						unsigned long clockFreq);
+#endif
 
 
-#endif /* INC_EVENTLOOP_HPP_ */
+#endif /* EVENTLOOP_HPP_ */

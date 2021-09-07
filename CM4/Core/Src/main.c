@@ -68,6 +68,13 @@ int MX_OPENAMP_Init(int RPMsgRole, rpmsg_ns_bind_cb ns_bind_cb);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+// System Timer globals
+// Overflow = -1 since HAL starts timers with event flag set in order to force pre-scaler to update
+volatile uint32_t timerOverflow = -1;
+unsigned int UNSIGNED_INT_OVERFLOW = 4294967295;
+
+
+
 // Define global variables
 volatile uint32_t wheelSpeedCount = 0;
 uint32_t totalTicks;
@@ -133,15 +140,19 @@ int main(void)
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 
+  InitInterface(ReadHwTimer, ReadSwTimer, 1000000);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	while (1) {
-    /* USER CODE END WHILE */
 
-    /* USER CODE BEGIN 3 */
-	}
+  EventLoopC();
+  while (1) {
+  /* USER CODE END WHILE */
+
+  /* USER CODE BEGIN 3 */
+  }
   /* USER CODE END 3 */
 }
 
@@ -390,29 +401,64 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-__weak void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	// Timer 3 callback to read wheel speed sensor
-	if (htim == &htim3) {
-		// Update all instrument cluster data
-		UpdateInstrumentData(&totalTicks, &wspd, &odom, &trip, WHEEL_CIRCUM, NUM_SPEED_SENSORS,
-				wheelSpeedCount, MILE_IN_TICKS, frameTime);
+void TransmitErrors(char* dest)
+{
+	char comma[1];
+	comma[0] = ',';
 
-		wheelSpeedCount = 0;	// Reset wheel speed ticks to 0
-	}
-	// Timer 2 callback to send A7 instrument data
-	else if (htim == &htim2) {
-
-	}
+	HAL_UART_Transmit_IT(&huart1, (uint8_t*)dest, sizeof(dest));
+//	HAL_Delay(1);
+	HAL_UART_Transmit_IT(&huart1, (uint8_t*)comma, 1);
 }
 
-// Speed sensor callback
-__weak void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-	/* Prevent unused argument(s) compilation warning */
-	UNUSED(GPIO_Pin);
-	if (GPIO_Pin == GPIO_PIN_10) {
-		wheelSpeedCount++;
-	}
+uint32_t ReadHwTimer()
+{
+	uint32_t hwTime = __HAL_TIM_GET_COUNTER(&htim2);
+	return hwTime;
 }
+
+uint32_t ReadSwTimer()
+{
+	uint32_t swTime = timerOverflow;
+	return swTime;
+}
+
+__weak void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+
+  if(htim == &htim2)
+  {
+	  // Check for overflow of sw timer
+	  timerOverflow++;
+//	  HAL_GPIO_TogglePin(TestPin_GPIO_Port, TestPin_Pin);
+  }
+}
+
+//__weak void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+//	// Timer 3 callback to read wheel speed sensor
+//	if (htim == &htim3) {
+//		// Update all instrument cluster data
+//		UpdateInstrumentData(&totalTicks, &wspd, &odom, &trip, WHEEL_CIRCUM, NUM_SPEED_SENSORS,
+//				wheelSpeedCount, MILE_IN_TICKS, frameTime);
+//
+//		wheelSpeedCount = 0;	// Reset wheel speed ticks to 0
+//	}
+//	// Timer 2 callback to send A7 instrument data
+//	else if (htim == &htim2) {
+//
+//	}
+//}
+//
+//// Speed sensor callback
+//__weak void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+//	/* Prevent unused argument(s) compilation warning */
+//	UNUSED(GPIO_Pin);
+//	if (GPIO_Pin == GPIO_PIN_10) {
+//		wheelSpeedCount++;
+//	}
+//}
 
 /* USER CODE END 4 */
 
