@@ -36,5 +36,4 @@ private:
 };
 
 
-
 #endif /* INSTRUMENTCOMMANDMESSAGE_HPP_ */

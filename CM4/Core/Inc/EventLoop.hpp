@@ -5,7 +5,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <main.h>
-#include "InstrumentCommandMessage.h"
 
 typedef uint32_t (*ReadExternalTimer32Bit_t)();
 

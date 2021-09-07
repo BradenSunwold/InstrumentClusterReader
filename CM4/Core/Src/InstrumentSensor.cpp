@@ -5,7 +5,7 @@
  *      Author: braden
  */
 
-#include "InstrumentSensor.h"
+#include <InstrumentSensor.hpp>
 
 void UpdateInstrumentData(uint32_t* totalTicks, float* wspd, int* odom, int* trip,
 		float wheelCircum, int numSensors, uint32_t ticks, int tipDistanceInTicks, float frameTime)
@@ -17,7 +17,7 @@ void UpdateInstrumentData(uint32_t* totalTicks, float* wspd, int* odom, int* tri
 	*totalTicks = *totalTicks + ticks;		// Calculate the total distance traveled so far in ticks
 
 	// Update trip mileage
-	if(totalTicks >= tipDistanceInTicks)
+	if(*totalTicks >= tipDistanceInTicks)
 	{
 		*trip++;					// Have traveled one unit of distance so increment trip and odom
 		*odom++;

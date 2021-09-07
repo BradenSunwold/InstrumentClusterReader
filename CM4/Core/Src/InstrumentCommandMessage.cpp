@@ -1,5 +1,5 @@
 
-#include <InstrumentCommandMessage.h>
+#include <InstrumentCommandMessage.hpp>
 
 InstrumentCommandMessage::InstrumentCommandMessage()
 {

@@ -23,9 +23,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "InstrumentSensor.h"
-#include "InstrumentClusterDefines.hpp"
-#include "EventLoop.hpp"
 
 /* USER CODE END Includes */
 
@@ -406,9 +403,9 @@ void TransmitErrors(char* dest)
 	char comma[1];
 	comma[0] = ',';
 
-	HAL_UART_Transmit_IT(&huart1, (uint8_t*)dest, sizeof(dest));
+//	HAL_UART_Transmit_IT(&huart1, (uint8_t*)dest, sizeof(dest));
 //	HAL_Delay(1);
-	HAL_UART_Transmit_IT(&huart1, (uint8_t*)comma, 1);
+//	HAL_UART_Transmit_IT(&huart1, (uint8_t*)comma, 1);
 }
 
 uint32_t ReadHwTimer()
