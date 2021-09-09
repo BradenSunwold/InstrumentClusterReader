@@ -1,12 +1,16 @@
 
 #include "EventLoop.hpp"
 #include <System/SystemTime.hpp>
-#include <Types/Time.hpp>
 #include <InstrumentCommandMessage.hpp>
+#include <Types/Time/Time.hpp>
 
 using namespace sys::time;
 using namespace types;
 
+// Globals for IPC communication
+extern char clusterDataBuffer[12];		// Always have 12 bytes of data being sent to display
+
+// Globals for testing system time
 TimeCount previousTime = 0;
 int timeError = 0;
 

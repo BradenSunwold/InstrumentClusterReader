@@ -14,7 +14,7 @@
 #include "stm32mp157.dtsi"
 #include "stm32mp15xc.dtsi"
 #include "stm32mp15xxac-pinctrl.dtsi"
-#include "stm32mp157-m4-srm.dtsi"
+#include "stm32mp15-m4-srm.dtsi"
 
 /* USER CODE BEGIN includes */
 #include <dt-bindings/mfd/st,stpmic1.h>
@@ -150,11 +150,10 @@
 	/* USER CODE END root */
 
 	clocks {
-
 		/* USER CODE BEGIN clocks */
 		/* USER CODE END clocks */
 
-#ifndef CONFIG_STM32MP1_TRUSTED
+#ifndef CONFIG_TFABOOT
 		clk_lsi: clk-lsi {
 			clock-frequency = <32000>;
 		};
@@ -170,7 +169,7 @@
 		clk_hse: clk-hse {
 			clock-frequency = <24000000>;
 		};
-#endif	/*CONFIG_STM32MP1_TRUSTED*/
+#endif	/*CONFIG_TFABOOT*/
 	};
 
 }; /*root*/
