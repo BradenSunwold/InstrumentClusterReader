@@ -70,24 +70,10 @@ int MX_OPENAMP_Init(int RPMsgRole, rpmsg_ns_bind_cb ns_bind_cb);
 volatile uint32_t timerOverflow = -1;
 unsigned int UNSIGNED_INT_OVERFLOW = 4294967295;
 
+// Cluster data globals
 // Global buffer to hold display command messages
 char clusterDataBuffer[12];
-
-
-// Define global variables
-volatile uint32_t wheelSpeedCount = 0;
-uint32_t totalTicks;
-float frameTime = 5;						// Timer frame time for instrument data calculations (ms)
-float wspd;
-int trip;
-int odom;
-
-// Constituent variables
-const int INCHES_TO_MILE = 63360;					// 63360 inches in 1 mile
-const float WHEEL_CIRCUM = 85;						// Wheel circumference in inches
-const int NUM_SPEED_SENSORS = 2;					// How many wheel speed sensors
-// Calculate how many wheel speed interrupts would equal 1 mile
-const int MILE_IN_TICKS = INCHES_TO_MILE / (WHEEL_CIRCUM / NUM_SPEED_SENSORS);
+volatile uint32_t speedTicks = 0;	// Not currently used but could be used for dropout error checking
 
 /* USER CODE END 0 */
 
@@ -422,42 +408,28 @@ uint32_t ReadSwTimer()
 	return swTime;
 }
 
+// System timer callback to increment overflow
 __weak void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   /* Prevent unused argument(s) compilation warning */
   UNUSED(htim);
-
   if(htim == &htim2)
   {
 	  // Check for overflow of sw timer
 	  timerOverflow++;
-//	  HAL_GPIO_TogglePin(TestPin_GPIO_Port, TestPin_Pin);
   }
 }
 
-//__weak void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-//	// Timer 3 callback to read wheel speed sensor
-//	if (htim == &htim3) {
-//		// Update all instrument cluster data
-//		UpdateInstrumentData(&totalTicks, &wspd, &odom, &trip, WHEEL_CIRCUM, NUM_SPEED_SENSORS,
-//				wheelSpeedCount, MILE_IN_TICKS, frameTime);
-//
-//		wheelSpeedCount = 0;	// Reset wheel speed ticks to 0
-//	}
-//	// Timer 2 callback to send A7 instrument data
-//	else if (htim == &htim2) {
-//
-//	}
-//}
-//
-//// Speed sensor callback
-//__weak void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-//	/* Prevent unused argument(s) compilation warning */
-//	UNUSED(GPIO_Pin);
-//	if (GPIO_Pin == GPIO_PIN_10) {
-//		wheelSpeedCount++;
-//	}
-//}
+// Gpio interrupt callback to calculate cluster data
+__weak void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+	/* Prevent unused argument(s) compilation warning */
+	UNUSED(GPIO_Pin);
+	if (GPIO_Pin == GPIO_PIN_10) {
+		speedTicks++;
+		UpdateClusterDataC();
+	}
+}
 
 /* USER CODE END 4 */
 

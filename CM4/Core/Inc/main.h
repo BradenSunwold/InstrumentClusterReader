@@ -36,7 +36,6 @@ extern "C" {
 #include <EventLoop.hpp>
 #include <CtoCppInterface.hpp>
 #include <InstrumentSensor.hpp>
-#include "InstrumentClusterDefines.hpp"
 
 /* USER CODE END Includes */
 

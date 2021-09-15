@@ -1,8 +1,9 @@
 
 #include "EventLoop.hpp"
 #include <System/SystemTime.hpp>
-#include <InstrumentCommandMessage.hpp>
+#include <Messages/Speedometer/DisplayCommandMessage.hpp>
 #include <Types/Time/Time.hpp>
+#include <Components/SpeedSensor.hpp>
 
 using namespace sys::time;
 using namespace types;
@@ -10,14 +11,27 @@ using namespace types;
 // Globals for IPC communication
 extern char clusterDataBuffer[12];		// Always have 12 bytes of data being sent to display
 
+// Globals for speed sensor interrupts
+extern volatile uint32_t speedTicks;
+SpeedSensor clusterSensorArray;
+
 // Globals for testing system time
 TimeCount previousTime = 0;
 int timeError = 0;
 
 void EventLoopCpp()
 {
-	// Test system timer
-	TestSystemTimer();
+	/* Test system timer */
+//	TestSystemTimer();
+
+	// Run state machine for packing messages
+}
+
+void UpdateClusterDataCpp()
+{
+	// Record time of interrupt and use it to calculate wheel speed
+	TimeCount currentTime = SystemTime::GetTime();
+	clusterSensorArray.UpdateInstrumentData(currentTime);
 }
 
 void TestSystemTimer()

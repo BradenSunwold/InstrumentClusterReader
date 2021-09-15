@@ -7,4 +7,9 @@ extern "C"
 	{
 		EventLoopCpp();
 	}
+
+	void UpdateClusterDataC()
+	{
+		UpdateClusterDataCpp();
+	}
 }

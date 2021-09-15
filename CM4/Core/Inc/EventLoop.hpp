@@ -8,7 +8,10 @@
 
 typedef uint32_t (*ReadExternalTimer32Bit_t)();
 
+// Main event loop
 void EventLoopCpp();
+// Speed sensor GPIO interrupt callback
+void UpdateClusterDataCpp();
 
 // System timer test functions
 void TestSystemTimer();
