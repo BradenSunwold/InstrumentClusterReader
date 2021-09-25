@@ -35,7 +35,6 @@ extern "C" {
 
 #include <EventLoop.hpp>
 #include <CtoCppInterface.hpp>
-#include <InstrumentSensor.hpp>
 
 /* USER CODE END Includes */
 
@@ -62,6 +61,10 @@ void Error_Handler(void);
 uint32_t ReadSwTimer();
 uint32_t ReadHwTimer();
 void TransmitErrors(char* dest);
+
+// Wrapper functions to interact with IPC
+void openAmpPollForMessages();			// Poll rx openAmp messages
+void IpcTransmit(char* data);			// Transmit IPC data
 
 /* USER CODE END EFP */
 

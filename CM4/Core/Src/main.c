@@ -24,6 +24,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#include "virt_uart.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,7 +48,21 @@ IPCC_HandleTypeDef hipcc;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 
+UART_HandleTypeDef huart3;
+
 /* USER CODE BEGIN PV */
+
+VIRT_UART_HandleTypeDef huart0;
+VIRT_UART_HandleTypeDef huart1;
+
+__IO FlagStatus VirtUart0RxMsg = RESET;
+uint8_t VirtUart0ChannelBuffRx[50];
+uint16_t VirtUart0ChannelRxSize = 0;
+uint8_t counter = 0;
+
+__IO FlagStatus VirtUart1RxMsg = RESET;
+uint8_t VirtUart1ChannelBuffRx[50];
+uint16_t VirtUart1ChannelRxSize = 0;
 
 /* USER CODE END PV */
 
@@ -57,8 +73,12 @@ static void MX_GPIO_Init(void);
 static void MX_IPCC_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_USART3_UART_Init(void);
 int MX_OPENAMP_Init(int RPMsgRole, rpmsg_ns_bind_cb ns_bind_cb);
 /* USER CODE BEGIN PFP */
+
+void VIRT_UART0_RxCpltCallback(VIRT_UART_HandleTypeDef *huart);
+void VIRT_UART1_RxCpltCallback(VIRT_UART_HandleTypeDef *huart);
 
 /* USER CODE END PFP */
 
@@ -123,9 +143,32 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM2_Init();
   MX_TIM3_Init();
+  MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
 
   InitInterface(ReadHwTimer, ReadSwTimer, 1000000);
+
+  /*
+    * Create Virtual UART device
+    * defined by a rpmsg channel attached to the remote device
+    */
+   if (VIRT_UART_Init(&huart0) != VIRT_UART_OK) {
+     Error_Handler();
+   }
+
+   if (VIRT_UART_Init(&huart1) != VIRT_UART_OK) {
+     Error_Handler();
+   }
+
+//   /*Need to register callback for message reception by channels*/
+//   if(VIRT_UART_RegisterCallback(&huart0, VIRT_UART_RXCPLT_CB_ID, VIRT_UART0_RxCpltCallback) != VIRT_UART_OK)
+//   {
+//    Error_Handler();
+//   }
+//   if(VIRT_UART_RegisterCallback(&huart1, VIRT_UART_RXCPLT_CB_ID, VIRT_UART1_RxCpltCallback) != VIRT_UART_OK)
+//   {
+//     Error_Handler();
+//   }
 
   /* USER CODE END 2 */
 
@@ -359,6 +402,54 @@ static void MX_TIM3_Init(void)
 }
 
 /**
+  * @brief USART3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART3_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART3_Init 0 */
+
+  /* USER CODE END USART3_Init 0 */
+
+  /* USER CODE BEGIN USART3_Init 1 */
+
+  /* USER CODE END USART3_Init 1 */
+  huart3.Instance = USART3;
+  huart3.Init.BaudRate = 115200;
+  huart3.Init.WordLength = UART_WORDLENGTH_8B;
+  huart3.Init.StopBits = UART_STOPBITS_1;
+  huart3.Init.Parity = UART_PARITY_NONE;
+  huart3.Init.Mode = UART_MODE_TX_RX;
+  huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart3.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart3.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart3.Init.ClockPrescaler = UART_PRESCALER_DIV1;
+  huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_MultiProcessor_Init(&huart3, 0, UART_WAKEUPMETHOD_IDLELINE) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_SetTxFifoThreshold(&huart3, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_SetRxFifoThreshold(&huart3, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_EnableFifoMode(&huart3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART3_Init 2 */
+
+  /* USER CODE END USART3_Init 2 */
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -368,6 +459,7 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOE_CLK_ENABLE();
@@ -386,28 +478,7 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-void TransmitErrors(char* dest)
-{
-	char comma[1];
-	comma[0] = ',';
-
-//	HAL_UART_Transmit_IT(&huart1, (uint8_t*)dest, sizeof(dest));
-//	HAL_Delay(1);
-//	HAL_UART_Transmit_IT(&huart1, (uint8_t*)comma, 1);
-}
-
-uint32_t ReadHwTimer()
-{
-	uint32_t hwTime = __HAL_TIM_GET_COUNTER(&htim2);
-	return hwTime;
-}
-
-uint32_t ReadSwTimer()
-{
-	uint32_t swTime = timerOverflow;
-	return swTime;
-}
-
+/****** Callbacks ******/
 // System timer callback to increment overflow
 __weak void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
@@ -430,6 +501,84 @@ __weak void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		UpdateClusterDataC();
 	}
 }
+
+/****** Interface functions ******/
+uint32_t ReadHwTimer()
+{
+	uint32_t hwTime = __HAL_TIM_GET_COUNTER(&htim2);
+	return hwTime;
+}
+
+uint32_t ReadSwTimer()
+{
+	uint32_t swTime = timerOverflow;
+	return swTime;
+}
+
+void TransmitErrors(char* dest)
+{
+	char comma[1];
+	comma[0] = ',';
+
+//	HAL_UART_Transmit_IT(&huart1, (uint8_t*)dest, sizeof(dest));
+//	HAL_Delay(1);
+//	HAL_UART_Transmit_IT(&huart1, (uint8_t*)comma, 1);
+}
+
+// TODO: Add Receive() for IPC
+void IpcTransmit(char* data)
+{
+    VIRT_UART_Transmit(&huart0, (uint8_t *)data, sizeof(data));
+}
+
+void openAmpPollForMessages()
+{
+	OPENAMP_check_for_message();
+}
+
+//void VIRT_UART0_RxCpltCallback(VIRT_UART_HandleTypeDef *huart)
+//{
+//
+//    log_info("Msg received on VIRTUAL UART0 channel:  %s \n\r", (char *) huart->pRxBuffPtr);
+//
+//    /* copy received msg in a variable to sent it back to master processor in main infinite loop*/
+//    VirtUart0ChannelRxSize = huart->RxXferSize < MAX_BUFFER_SIZE? huart->RxXferSize : MAX_BUFFER_SIZE-1;
+//
+////    char txBuff_1[10];
+////    float testing = 25.25;
+////    char * ptr = (char*) &testing;					// Pointer to first byte of float
+////    //sprintf(txBuff_1, "%f", testing);
+////    for(int i = 0; i < sizeof(testing); i++) {
+////    	txBuff_1[i] = *ptr;							// Loop over each byte in testing float and put in byte array
+////    	ptr++;
+////    }
+//
+//    // Need to update to send struct data
+//    char txBuff[15];
+//    //float testing = 50.6;
+//    char * ptr = (char*) &instData;					// Pointer to first byte of float
+//
+//    // Package struct data for UART
+//    for(int i = 0; i < sizeof(instData); i++) {
+//    	txBuff[i] = *ptr;			// Loop over each byte in struct and put in byte array
+//    	ptr++;
+//    }
+//
+//    memcpy(VirtUart0ChannelBuffRx, (uint8_t *) txBuff, VirtUart0ChannelRxSize);
+//    //memcpy(VirtUart0ChannelBuffRx, huart->pRxBuffPtr, VirtUart0ChannelRxSize);
+//    VirtUart0RxMsg = SET;
+//}
+//
+//void VIRT_UART1_RxCpltCallback(VIRT_UART_HandleTypeDef *huart)
+//{
+//
+//    log_info("Msg received on VIRTUAL UART1 channel:  %s \n\r", (char *) huart->pRxBuffPtr);
+//
+//    /* copy received msg in a variable to sent it back to master processor in main infinite loop*/
+//    VirtUart1ChannelRxSize = huart->RxXferSize < MAX_BUFFER_SIZE? huart->RxXferSize : MAX_BUFFER_SIZE-1;
+//    memcpy(VirtUart1ChannelBuffRx, huart->pRxBuffPtr, VirtUart1ChannelRxSize);
+//    VirtUart1RxMsg = SET;
+//}
 
 /* USER CODE END 4 */
 
