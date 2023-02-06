@@ -93,7 +93,12 @@ unsigned int UNSIGNED_INT_OVERFLOW = 4294967295;
 // Cluster data globals
 // Global buffer to hold display command messages
 char clusterDataBuffer[12];
-volatile uint32_t speedTicks = 0;	// Not currently used but could be used for dropout error checking
+
+struct instrumentData {
+	  float wspd;
+	  int trip;
+	  int odom;
+} instData;
 
 /* USER CODE END 0 */
 
@@ -175,8 +180,31 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
+   instData.wspd = 50.8;
+   instData.trip = 7;
+   instData.odom = 5000;
+
+   // Need to update to send struct data
+   char txBuff[15];
+   //float testing = 50.6;
+   char * ptr = (char*) &instData;					// Pointer to first byte of float
+   //sprintf(txBuff_1, "%f", testing);
+
+   // Package struct data for UART
+   for(int i = 0; i < sizeof(instData); i++) {
+   	txBuff[i] = *ptr;			// Loop over each byte in struct and put in byte array
+   	ptr++;
+   }
+
+//   // Test IPC
+//   IpcTransmit(txBuff);
+
   EventLoopC();
   while (1) {
+	   // Test IPC
+	   openAmpPollForMessages();
+	   IpcTransmit(txBuff, sizeof(txBuff));
+	   HAL_Delay(5000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -497,8 +525,7 @@ __weak void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	/* Prevent unused argument(s) compilation warning */
 	UNUSED(GPIO_Pin);
 	if (GPIO_Pin == GPIO_PIN_10) {
-		speedTicks++;
-		UpdateClusterDataC();
+		UpdateSpeedTicksC();
 	}
 }
 
@@ -526,9 +553,9 @@ void TransmitErrors(char* dest)
 }
 
 // TODO: Add Receive() for IPC
-void IpcTransmit(char* data)
+void IpcTransmit(char* data, size_t dataSize)
 {
-    VIRT_UART_Transmit(&huart0, (uint8_t *)data, sizeof(data));
+    VIRT_UART_Transmit(&huart0, (uint8_t *)data, dataSize);
 }
 
 void openAmpPollForMessages()

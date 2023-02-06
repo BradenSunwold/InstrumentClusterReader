@@ -7,23 +7,22 @@
 #include <Messages/Speedometer/DisplayCommandMessage.hpp>
 #include <Types/Time/Time.hpp>
 #include <Components/SpeedSensor.hpp>
+#include <System/Timer.hpp>
+#include "main.h"
 
 class InstrumentClusterCore
 {
 public:
-	InstrumentClusterCore(SpeedSensor& sensorArray, int displayUpdateRate);
+	InstrumentClusterCore(SpeedSensor& sensorArray);
 
-	// Main state machine function
-	void RunStateMachine();
+	// Main event loop
+	void MainEventLoop();
 
 private:
 	// Private member variables
-	SpeedSensor& mClusterSensorArray;
-	int mDisplayUpdateTimer;
-	DisplayCommandMessage mDisplayCmdMessage;
-	bool mContinuousOperation;
+	SpeedSensor& mClusterSensorArray;				// Cluster dat holding wsp and trip values
+	DisplayCommandMessage mDisplayCmdMessage;		// Command message to application side
 
-	// Private member functions
 };
 
 

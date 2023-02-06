@@ -10,11 +10,11 @@ extern "C"
 	// Interface function call to main cpp application loop
 	void EventLoopC();
 	// Interface function call to speed sensor GPIO interrupt callback
-	void UpdateClusterDataC();
+	void UpdateSpeedTicksC();
 }
 #else
 	void EventLoopC();
-	void UpdateClusterDataC();
+	void UpdateSpeedTicksC();
 #endif
 
 #endif /* INC_CTOCPPINTERFACE_HPP_ */

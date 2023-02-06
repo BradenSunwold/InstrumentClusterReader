@@ -4,6 +4,7 @@
 #include <Messages/Speedometer/DisplayCommandMessage.hpp>
 #include <Types/Time/Time.hpp>
 #include <Components/SpeedSensor.hpp>
+#include <InstrumentClusterCore.hpp>
 
 using namespace sys::time;
 using namespace types;
@@ -12,7 +13,6 @@ using namespace types;
 extern char clusterDataBuffer[12];		// Always have 12 bytes of data being sent to display
 
 // Globals for speed sensor interrupts
-extern volatile uint32_t speedTicks;
 SpeedSensor clusterSensorArray;
 
 // Globals for testing system time
@@ -21,17 +21,14 @@ int timeError = 0;
 
 void EventLoopCpp()
 {
-	/* Test system timer */
-//	TestSystemTimer();
-
-	// Run state machine for packing messages
+	// Set up InstrumentClusterCore
+	InstrumentClusterCore InstClustCore = InstrumentClusterCore(clusterSensorArray);
 }
 
-void UpdateClusterDataCpp()
+void UpdateSpeedTicksCpp()
 {
-	// Record time of interrupt and use it to calculate wheel speed
-	TimeCount currentTime = SystemTime::GetTime();
-	clusterSensorArray.UpdateInstrumentData(currentTime);
+	// Call into SpeedSensor class to increment tick count
+	clusterSensorArray.IncrementSpeedTicks();
 }
 
 void TestSystemTimer()

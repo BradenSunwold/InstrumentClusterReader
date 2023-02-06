@@ -8,8 +8,8 @@ extern "C"
 		EventLoopCpp();
 	}
 
-	void UpdateClusterDataC()
+	void UpdateSpeedTicksC()
 	{
-		UpdateClusterDataCpp();
+		UpdateSpeedTicksCpp();
 	}
 }

@@ -64,7 +64,7 @@ void TransmitErrors(char* dest);
 
 // Wrapper functions to interact with IPC
 void openAmpPollForMessages();			// Poll rx openAmp messages
-void IpcTransmit(char* data);			// Transmit IPC data
+void IpcTransmit(char* data, size_t dataSize);			// Transmit IPC data
 
 /* USER CODE END EFP */
 
